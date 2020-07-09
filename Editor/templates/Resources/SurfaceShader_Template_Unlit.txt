@@ -38,6 +38,7 @@
                float3 WorldSpaceNormal;
                float3 WorldSpaceTangent;
                float3x3 TangentSpaceMatrix;
+               float4 uv0;
             };
 
             // data from mesh
@@ -98,6 +99,7 @@
 
                d.TangentSpaceMatrix = float3x3(i.worldTangent, cross(i.worldTangent, i.worldNormal), i.worldNormal);
                d.WorldSpaceViewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
+               d.uv0 = i.uv0;
                return d;
             }
 

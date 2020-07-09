@@ -1,0 +1,29 @@
+﻿
+BEGIN_INCLUDES
+   "Snow.subshader"
+END_INCLUDES
+
+BEGIN_PROPERTIES
+
+   _Albedo("Albedo", 2D) = "white" {}
+
+END_PROPERTIES
+
+BEGIN_CODE
+
+sampler2D _Albedo;
+
+SurfaceOutput SurfaceFunction(ShaderData d)
+{
+	SurfaceOutput o = (SurfaceOutput)0;
+	o.Albedo = tex2D(_Albedo, d.uv0.xy).rgb;
+	o.Alpha = 1;
+
+	#if _SNOW
+       DoSnow(o, d);
+	#endif
+
+	return o;
+}
+
+END_CODE

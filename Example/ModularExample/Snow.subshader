@@ -1,0 +1,32 @@
+﻿
+BEGIN_PROPERTIES
+   _SnowAlbedo("Snow Albedo", 2D) = "white" {}
+   _SnowAmount("Snow Amount", Range(0,1)) = 1
+   _SnowFalloff("Snow Falloff", Range(1, 10)) = 2
+   _SnowAngleMin("Snow Angle Minimum", Range(0,1)) = 0.1
+END_PROPERTIES
+
+BEGIN_DEFINES
+   #define _SNOW 1
+END_DEFINES
+
+
+BEGIN_CODE
+
+sampler2D _SnowAlbedo;
+float _SnowAmount;
+float _SnowFalloff;
+float _SnowAngleMin;
+
+
+void DoSnow(inout SurfaceOutput o, ShaderData d)
+{
+	float dt = dot(d.WorldSpaceNormal, float3(0,1,0));
+	dt -= _SnowAngleMin;
+	dt = saturate(dt * _SnowFalloff * _SnowAmount);
+
+	half3 snowAlbedo = tex2D(_SnowAlbedo, d.uv0.xy).rgb;
+	o.Albedo = lerp(o.Albedo, snowAlbedo, dt);
+}
+
+END_CODE
