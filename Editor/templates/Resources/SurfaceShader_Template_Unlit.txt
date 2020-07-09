@@ -30,7 +30,7 @@
                half Alpha;
             };
 
-            // data the user might need, this will grow to be big
+            // data the user might need, this will grow to be big. But easy to strip
             struct ShaderData
             {
                float3 WorldSpacePosition;
@@ -41,7 +41,10 @@
                float4 uv0;
             };
 
-            // data from mesh
+            // data from mesh. These would get stripped based on what you use from the above,
+            // or what your template file uses. Such that if your template and shader both never use the tangent or TBN matrix, 
+            // tangent gets stripped. 
+
             struct appdata_t {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -51,7 +54,7 @@
             };
 
 
-            // data across stages
+            // data across stages, stripped like the above.
             struct v2f {
                 float4 clipPosition : SV_POSITION;
                 float3 worldPos : TEXCOORD0;
@@ -64,7 +67,7 @@
 
             %CODE%
 
-
+            // the raw vertex function, eventually this would call out to an optional function for the user.
             v2f vert (appdata_t v)
             {
                 v2f o;
@@ -89,7 +92,7 @@
             // This is mainly to speed up the compiler when dealing with lots of variants, and to
             // also slim down the appdata/v2f structures as well.
 
-
+            
             ShaderData CreateShaderData(v2f i)
             {
                ShaderData d = (ShaderData)0;
@@ -103,6 +106,7 @@
                return d;
             }
 
+            // the actual fragment function, which calls up to the user function
             half4 frag (v2f i) : SV_Target
             {
                 ShaderData d = CreateShaderData(i);

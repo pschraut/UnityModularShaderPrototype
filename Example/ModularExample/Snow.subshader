@@ -1,4 +1,6 @@
-﻿
+﻿// this is a snow subshader. Include it in your includes block, and call the Snow function. It sets a define so you can wrap it in an #if _SNOW if you want
+
+
 BEGIN_PROPERTIES
    _SnowAlbedo("Snow Albedo", 2D) = "white" {}
    _SnowAmount("Snow Amount", Range(0,1)) = 1

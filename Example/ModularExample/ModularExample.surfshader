@@ -1,4 +1,7 @@
-﻿
+﻿// Example of a modular shader. 
+// This file includes the snow feature into it via the includes block. It can
+// then call the snow function. Note that properties, etc all are in the snow file
+
 BEGIN_INCLUDES
    "Snow.subshader"
 END_INCLUDES
