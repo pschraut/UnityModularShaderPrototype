@@ -5,10 +5,10 @@ using UnityEditor;
 using UnityEditor.Experimental.AssetImporters;
 using System.IO;
 
-[ScriptedImporter(13, MyShaderImporter.k_FileExtension)]
-public class MyShaderImporter : ScriptedImporter
+[ScriptedImporter(13, SurfaceShaderImporter.k_FileExtension)]
+public class SurfaceShaderImporter : ScriptedImporter
 {
-    public const string k_FileExtension = "myshader";
+    public const string k_FileExtension = "surfshader";
 
     public override void OnImportAsset(AssetImportContext ctx)
     {
@@ -57,7 +57,7 @@ public class MyShaderImporter : ScriptedImporter
         return k_ErrorShader;
     }
 
-    [MenuItem("Assets/Create/Shader/MyShader", priority = 310)]
+    [MenuItem("Assets/Create/Shader/SurfaceShader2", priority = 310)]
     static void CreateMenuItem()
     {
         // https://forum.unity.com/threads/how-to-implement-create-new-asset.759662/
@@ -77,7 +77,7 @@ public class MyShaderImporter : ScriptedImporter
         if (string.IsNullOrEmpty(directoryPath))
             directoryPath = "Assets/";
 
-        var fileName = string.Format("New MyShader.{0}", k_FileExtension);
+        var fileName = string.Format("New SurfaceShader2.{0}", k_FileExtension);
         directoryPath = AssetDatabase.GenerateUniqueAssetPath(directoryPath + fileName);
         ProjectWindowUtil.CreateAssetWithContent(directoryPath, "");
     }
