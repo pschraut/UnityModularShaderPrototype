@@ -1,0 +1,126 @@
+﻿Shader "%SHADERNAME%"
+{
+    Properties
+    {
+        %PROPERTIES%
+    }
+
+    SubShader
+    {
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 2.0
+            #pragma multi_compile _ UNITY_SINGLE_PASS_STEREO STEREO_INSTANCING_ON STEREO_MULTIVIEW_ON
+            #include "UnityCG.cginc"
+
+            %DEFINES%
+
+
+            // data describing the user output of a pixel
+            struct SurfaceOutput
+            {
+               half3 Albedo;
+               half3 Normal;
+               half Smoothness;
+               half Metallic;
+               half Occlusion;
+               half Alpha;
+            };
+
+            // data the user might need, this will grow to be big. But easy to strip
+            struct ShaderData
+            {
+               float3 WorldSpacePosition;
+               float3 WorldSpaceViewDir;
+               float3 WorldSpaceNormal;
+               float3 WorldSpaceTangent;
+               float3x3 TangentSpaceMatrix;
+               float4 uv0;
+            };
+
+            // data from mesh. These would get stripped based on what you use from the above,
+            // or what your template file uses. Such that if your template and shader both never use the tangent or TBN matrix, 
+            // tangent gets stripped. 
+
+            struct appdata_t {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+                float4 tangent : TANGENT;
+                float4 texcoord0 : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+
+            // data across stages, stripped like the above.
+            struct v2f {
+                float4 clipPosition : SV_POSITION;
+                float3 worldPos : TEXCOORD0;
+                float3 worldNormal : TEXCOORD1;
+                float3 worldTangent : TEXCOORD2;
+                float4 uv0 : TEXCCOORD3;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+
+            %CODE%
+
+            // the raw vertex function, eventually this would call out to an optional function for the user.
+            v2f vert (appdata_t v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                o.clipPosition = UnityObjectToClipPos(v.vertex);
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                o.worldNormal = mul((float3x3)unity_ObjectToWorld, v.normal);
+                o.worldTangent = mul((float3x3)unity_ObjectToWorld, v.tangent.xyz) * v.tangent.w;
+                o.uv0 = v.texcoord0;
+
+                return o;
+            }
+
+
+            // shader compiler will strip unused entries, but in the furture, we will mark these
+            // with %WorldSpacePosition% and such, and if that keyword is found in the users code, we
+            // will replace that with a comment, if not, replace it with nothing. IE:
+            //
+            // %WorldSpacePosition% d.WorldSpacePosition = i.worldPos;
+            // 
+            // This is mainly to speed up the compiler when dealing with lots of variants, and to
+            // also slim down the appdata/v2f structures as well.
+
+            
+            ShaderData CreateShaderData(v2f i)
+            {
+               ShaderData d = (ShaderData)0;
+               d.WorldSpacePosition = i.worldPos;
+               d.WorldSpaceNormal = i.worldNormal;
+               d.WorldSpaceTangent = i.worldTangent;
+
+               d.TangentSpaceMatrix = float3x3(i.worldTangent, cross(i.worldTangent, i.worldNormal), i.worldNormal);
+               d.WorldSpaceViewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
+               d.uv0 = i.uv0;
+               return d;
+            }
+
+            // the actual fragment function, which calls up to the user function
+            half4 frag (v2f i) : SV_Target
+            {
+                ShaderData d = CreateShaderData(i);
+
+                // call user code, we expect a SurfaceFunction
+                SurfaceOutput o = SurfaceFunction(d);
+
+                // would normally use o to do lighting, etc, but this is unlit.
+
+                return half4(o.Albedo, o.Alpha);
+
+            }
+            ENDCG
+        }
+    }
+    Fallback Off
+}
