@@ -12,10 +12,23 @@ public class SurfaceShaderImporter : ScriptedImporter
 
     public override void OnImportAsset(AssetImportContext ctx)
     {
+        // Clear any cached error message in case the shader existed already.
+        // BUG? Returns null always!
+        var existingShader = AssetDatabase.LoadAssetAtPath<Shader>(ctx.assetPath);
+        if (existingShader != null)
+            ShaderUtil.ClearShaderMessages(existingShader);
+
         var text = BuildShader(ctx);
         Debug.Log(text);
 
         var shader = ShaderUtil.CreateShaderAsset(text);
+
+        // In case the surface shader could not be compiled, use an "error shader" instead.
+        if (ShaderUtil.ShaderHasError(shader))
+        {
+            text = k_ErrorShader.Replace("%SHADERNAME%", System.IO.Path.GetFileNameWithoutExtension(ctx.assetPath));
+            shader = ShaderUtil.CreateShaderAsset(text);
+        }
 
         ctx.AddObjectToAsset("MainAsset", shader);
         ctx.SetMainObject(shader);
@@ -75,7 +88,7 @@ public class SurfaceShaderImporter : ScriptedImporter
     }
 
     const string k_ErrorShader = @"
-Shader ""Hidden/MYSHADER_ERROR""
+Shader ""Surface Shader v2/%SHADERNAME%""
 {
     SubShader
     {
