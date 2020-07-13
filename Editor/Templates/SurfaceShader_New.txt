@@ -1,0 +1,19 @@
+﻿
+BEGIN_PROPERTIES
+	_Color ("Main Color", Color) = (0, 1, 0, 1)
+END_PROPERTIES
+
+BEGIN_CODE
+
+half4 _Color;
+
+SurfaceOutput SurfaceFunction(ShaderData d)
+{
+	SurfaceOutput o = (SurfaceOutput)0;
+	o.Albedo = _Color.rgb;
+	o.Alpha = _Color.a;
+	return o;
+}
+
+END_CODE
+

@@ -57,7 +57,7 @@ public class SurfaceShaderImporter : ScriptedImporter
         return k_ErrorShader;
     }
 
-    [MenuItem("Assets/Create/Shader/SurfaceShader2", priority = 310)]
+    [MenuItem("Assets/Create/Shader/Surface Shader v2", priority = 310)]
     static void CreateMenuItem()
     {
         // https://forum.unity.com/threads/how-to-implement-create-new-asset.759662/
@@ -77,9 +77,11 @@ public class SurfaceShaderImporter : ScriptedImporter
         if (string.IsNullOrEmpty(directoryPath))
             directoryPath = "Assets/";
 
-        var fileName = string.Format("New SurfaceShader2.{0}", k_FileExtension);
+        var fileName = string.Format("New Surface Shader v2.{0}", k_FileExtension);
         directoryPath = AssetDatabase.GenerateUniqueAssetPath(directoryPath + fileName);
-        ProjectWindowUtil.CreateAssetWithContent(directoryPath, "");
+
+        var content = SurfaceShaderUtility.LoadTemplate("SurfaceShader_New");
+        ProjectWindowUtil.CreateAssetWithContent(directoryPath, content);
     }
 
     const string k_ErrorShader = @"
