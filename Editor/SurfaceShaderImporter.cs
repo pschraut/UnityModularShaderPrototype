@@ -29,23 +29,13 @@ public class SurfaceShaderImporter : ScriptedImporter
             var blocks = new ShaderBlockReader();
             blocks.Read(ctx.assetPath);
 
-            // print all includes
-            //foreach (var i in blocks.includes)
-            //    Debug.LogFormat("included: {0}", i);
-
-            //// print all blocks
-            //foreach (var b in blocks.blocks)
-            //    Debug.Log(b.name + " = " + b.text);
-
             // Mark included files as dependencies
             foreach (var include in blocks.includes)
                 ctx.DependsOnSourceAsset(include);
 
             // Build the actual shader text from the blocks
             var builder = new ShaderBuilder();
-            var text = builder.Build(blocks);
-
-            text = text.Replace("%SHADERNAME%", Path.GetFileNameWithoutExtension(ctx.assetPath));
+            var text = builder.Build(blocks, ctx.assetPath);
 
             return text;
         }
